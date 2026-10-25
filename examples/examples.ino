@@ -40,7 +40,7 @@ BleGamepad bleGamepad("PC Gamepad", "ESP32", 100);
 #define BTN_M5  48
 #define BTN_M6  35
 #define BTN_M7  36
-#define BTN_M8 37
+#define BTN_M8  37
 
 // ===== 校准相关 =====
 int lxCenter, lyCenter, rxCenter, ryCenter;
@@ -96,13 +96,12 @@ void setup() {
   pinMode(BTN_M6, INPUT_PULLUP);
   pinMode(BTN_M7, INPUT_PULLUP);
   pinMode(BTN_M8, INPUT_PULLUP);
-  pinMode(BTN_M9, INPUT_PULLUP);
-  pinMode(BTN_M10, INPUT_PULLUP);
+
 
   calibrateSticks(); // 开机自动校准
 
   BleGamepadConfiguration config;
-  config.setButtonCount(20);          // 10 标准 + 10 扩展
+  config.setButtonCount(18);          // 10 标准 + 8 扩展
   config.setWhichAxes(true, true, true, true, true, true, false, false);
   config.setHatSwitchCount(1);
 
@@ -149,7 +148,7 @@ void loop() {
   if (digitalRead(JOY_LSW) == LOW)  bleGamepad.press(BUTTON_9);  else bleGamepad.release(BUTTON_9);
   if (digitalRead(JOY_RSW) == LOW)  bleGamepad.press(BUTTON_10); else bleGamepad.release(BUTTON_10);
 
-  // ===== 扩展按键 M1~M10 =====
+  // ===== 扩展按键 M1~M8 =====
   if (digitalRead(BTN_M1) == LOW)  bleGamepad.press(BUTTON_11); else bleGamepad.release(BUTTON_11);
   if (digitalRead(BTN_M2) == LOW)  bleGamepad.press(BUTTON_12); else bleGamepad.release(BUTTON_12);
   if (digitalRead(BTN_M3) == LOW)  bleGamepad.press(BUTTON_13); else bleGamepad.release(BUTTON_13);
@@ -158,8 +157,7 @@ void loop() {
   if (digitalRead(BTN_M6) == LOW)  bleGamepad.press(BUTTON_16); else bleGamepad.release(BUTTON_16);
   if (digitalRead(BTN_M7) == LOW)  bleGamepad.press(BUTTON_17); else bleGamepad.release(BUTTON_17);
   if (digitalRead(BTN_M8) == LOW)  bleGamepad.press(BUTTON_18); else bleGamepad.release(BUTTON_18);
-  if (digitalRead(BTN_M9) == LOW)  bleGamepad.press(BUTTON_19); else bleGamepad.release(BUTTON_19);
-  if (digitalRead(BTN_M10) == LOW) bleGamepad.press(BUTTON_20); else bleGamepad.release(BUTTON_20);
+
 
   // ===== 方向键 =====
   bool up    = (digitalRead(DPAD_UP) == LOW);
