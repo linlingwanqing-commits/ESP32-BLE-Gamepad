@@ -1,33 +1,51 @@
-name: Build ESP32 Gamepad
+name: Build ESP32 Gamepad  # 工作流名称，会显示在 Actions 页面
 
-on:
+on:  # 触发条件
   push:
-    branches: [ main, master ]
-  pull_request:
-  workflow_dispatch: # 允许你在Actions页面手动点击运行
+    branches: [ main, master ]  # 推送到 main 或 master 分支时自动运行
+  pull_request:  # 有 PR 时也运行，方便检查合并前是否能编译
+  workflow_dispatch:  # 允许在 Actions 页面手动点击“Run workflow”触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用 GitHub 提供的最新 Ubuntu 虚拟环境
 
     steps:
+    # 第 1 步：把仓库代码拉到 runner 上，后续步骤才能访问你的 .ino 文件
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # 第 2 步：在 runner 上安装 Arduino CLI 工具
     - name: Setup Arduino CLI
       uses: arduino/setup-arduino-cli@v2
 
+    # 第 3 步：安装 ESP32 开发板支持包
     - name: Install ESP32 platform
       run: |
+        # 更新索引，并额外加入 Espressif 官方的 package 索引地址
         arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+        # 安装 esp32:esp32 这个核心（包含 ESP32-S3 的支持）
         arduino-cli core install esp32:esp32 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
 
+    # 第 4 步：安装项目依赖的库
     - name: Install required libraries
       run: |
+        # BLE 游戏手柄库本身
         arduino-cli lib install "ESP32-BLE-Gamepad"
+        # 该库 v3 以后依赖 NimBLE 作为蓝牙协议栈，必须一起装
         arduino-cli lib install "NimBLE-Arduino"
 
+    # 第 5 步：编译 sketch
     - name: Compile sketch
       run: |
-        # 请把下面的路径换成你自己 .ino 文件所在的文件夹名
-        arduino-cli compile --fqbn esp32:esp32:esp32 ./examples
+        # --fqbn 指定开发板为通用 ESP32；如果你用 S3 可改成 esp32:esp32:esp32s3
+        # --output-dir ./build 把编译产物（.bin/.elf 等）导出到 runner 的 ./build 目录
+        # ./examples 是 .ino 文件所在的文件夹路径，换成你自己的项目文件夹名
+        arduino-cli compile --esp32:esp32:esp32s3 --output-dir ./build ./examples
+
+    # 第 6 步：把编译产物上传为 artifact，供你在 Actions 页面下载
+    - name: Upload firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: esp32-gamepad-firmware  # 下载时看到的压缩包名称
+        path: ./build/  # 要打包上传的目录，和上一步的 --output-dir 保持一致
