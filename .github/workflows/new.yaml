@@ -1,0 +1,33 @@
+name: Build ESP32 Gamepad
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch: # 允许你在Actions页面手动点击运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Arduino CLI
+      uses: arduino/setup-arduino-cli@v2
+
+    - name: Install ESP32 platform
+      run: |
+        arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+        arduino-cli core install esp32:esp32 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+
+    - name: Install required libraries
+      run: |
+        arduino-cli lib install "ESP32-BLE-Gamepad"
+        arduino-cli lib install "NimBLE-Arduino"
+
+    - name: Compile sketch
+      run: |
+        # 请把下面的路径换成你自己 .ino 文件所在的文件夹名
+        arduino-cli compile --fqbn esp32:esp32:esp32 ./examples
