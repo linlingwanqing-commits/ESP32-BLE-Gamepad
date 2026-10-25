@@ -36,12 +36,10 @@ jobs:
         arduino-cli lib install "NimBLE-Arduino"
 
     # 第 5 步：编译 sketch
+        # 说明：--fqbn 指定开发板；如果你用 S3，可把下一行的 esp32:esp32:esp32 改成 esp32:esp32:esp32s3
     - name: Compile sketch
       run: |
-        # --fqbn 指定开发板为通用 ESP32；如果你用 S3 可改成 esp32:esp32:esp32s3
-        # --output-dir ./build 把编译产物（.bin/.elf 等）导出到 runner 的 ./build 目录
-        # ./examples 是 .ino 文件所在的文件夹路径，换成你自己的项目文件夹名
-        arduino-cli compile --esp32:esp32:esp32s3 --output-dir ./build ./examples
+        arduino-cli compile --fqbn esp32:esp32:esp32 --output-dir ./build ./examples
 
     # 第 6 步：把编译产物上传为 artifact，供你在 Actions 页面下载
     - name: Upload firmware
